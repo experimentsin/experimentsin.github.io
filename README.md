@@ -1,3 +1,3 @@
 Song Charts
 
-[Africa by Toto][toto-africa-chart.html]
+[Africa by Toto][https://experimentsin.github.io/toto-africa-chart.html]

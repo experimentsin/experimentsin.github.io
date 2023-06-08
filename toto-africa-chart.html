@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Africa Chart</title>
+
+    <script>
+      // Most commonly used names on guitar in a chord context
+      const SCALE = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+
+      function transposeNote(note, delta) {
+        let note_i = SCALE.findIndex(e => e == note)
+        let transposed_i = (note_i + delta % SCALE.length + SCALE.length) % SCALE.length
+        return SCALE[transposed_i]
+      }
+
+      const CHORD_PATTERN = /^([A-G][\#b]?)([a-z0-9]*)(\/([A-G][\#b]?))?$/
+
+      function parseChord(chord) {
+        let [all, root, modifier, slash, over] = chord.match(CHORD_PATTERN)
+        return {root: root, modifier: modifier, over: over}
+      }
+
+      function parsedChordString(parsed) {
+        let {root, modifier, over} = parsed
+        let str = `${root}${modifier}`
+        if (over) str += `/${over}`
+        return str
+      }
+
+      function transposeChord(chord, delta) {
+        let {root, modifier, over} = parseChord(chord)
+        return parsedChordString({
+          root: transposeNote(root, delta),
+          modifier: modifier,
+          over: over && transposeNote(over, delta)
+         })
+      }
+
+      let firstChordDelta = 0
+
+      function addTransposer(chord) {
+        let select = document.createElement("select")
+        select.name = "First chord"
+        select.id = "first_chord"
+
+        for (let delta = 0; delta < SCALE.length; ++delta) {
+          let t_chord = transposeChord(chord, delta)
+
+          let option = document.createElement("option")
+          option.value = delta
+          option.text = t_chord
+
+          select.appendChild(option)
+        }
+
+        document.getElementById("transposer").appendChild(select)
+
+        select.addEventListener("change", () => {
+            console.log("change", select.value)
+            transposeAll(select.value - firstChordDelta)
+            firstChordDelta = select.value
+          })
+      }
+
+      const NO_CAPO = "no capo"
+      let currentCapo = undefined
+
+      function normaliseCapo(capo) {
+        let capo_n = 0;
+        if (capo !== NO_CAPO) {
+          let [, capo_s] = capo.match(/capo (\d+)/)
+          capo_n = parseInt(capo_s)
+        }
+        return capo_n
+      }
+
+      function denormaliseCapo(capo_n) {
+        let capo = NO_CAPO
+        if (capo_n !== 0) {
+          capo = `capo ${capo_n}`
+        }
+        return capo
+      }
+
+      function transposeAll(delta) {
+        let chordElts = document.querySelectorAll("a-chord")
+        for (let chordElt of chordElts) {
+          let undelimited = chordElt.textContent
+          let t_chord = transposeChord(undelimited, delta)
+          chordElt.textContent = t_chord
+        }
+
+        let capoElt = document.getElementById("capo")
+        let capo_n = normaliseCapo(capoElt.textContent)
+        capo_n = (capo_n - delta + SCALE.length) % SCALE.length
+
+        capoElt.textContent = denormaliseCapo(capo_n)
+      }
+
+      function setup() {
+        let chordElts = document.querySelectorAll("a-chord")
+        let firstChordElt = chordElts[0]
+        addTransposer(firstChordElt.textContent)
+      }
+    </script>
+
+    <style>
+      body {
+    	  font-family: sans-serif;
+    	  font-size: 11pt;
+    	}
+
+      .song {
+    	  font-size: 13pt;
+        font-weight: bold;
+      }
+
+      .container {
+	      display: flex;
+      }
+
+      .column {
+        flex: 50%;
+	      margin: 0.5em;
+      }
+
+      table {
+	      width: 100%;
+	      background-color: white;
+	      color: black;
+      }
+
+      thead {
+	      background-color: lightgrey;
+	      color: black;
+      }
+
+      td {
+	      vertical-align: top;
+	      text-align: center;
+      }
+
+      a-chord:before {
+        content: '['
+      }
+
+      a-chord:after {
+        content: ']'
+      }
+
+      a-chord {
+        font-size: 10pt;
+        font-weight: bold
+      }
+
+      .spacer {
+	      background-color: white;
+	      color: white;
+      }
+
+      .skip {
+	      background-color: white;
+      }
+
+      .intro {
+	      background-color: lightgreen;
+      }
+
+      .verse {
+	      background-color: navajowhite;
+      }
+
+      .chorus {
+	      background-color: lightblue;
+      }
+
+      .half {
+	      width: 10%;
+      }
+
+      .bar1 {
+	      width: 20%;
+      }
+
+      .bar2 {
+	      width: 40%;
+      }
+    </style>
+  </head>
+
+  <body onload="setup()">
+    <span class="song">Africa v3.0</span> - <span id="transposer">first chord </span> (<span id="capo">capo 2</span> for recorded key)
+
+    <div class="container">
+      <div class="column">
+        <table>
+
+      	  <thead>
+            <tr>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="half">2</th>
+              <th class="half">2</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="intro">
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="intro">
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> I hear the drums  <a-chord>C#m7</a-chord> echo-ing to-</td>
+              <td class="bar1"><a-chord>F#m</a-chord> -night, but  <a-chord>A/E</a-chord> she hears only</td>
+              <td class="bar1"><a-chord>G</a-chord> whispers of some  <a-chord>Bm7</a-chord> private conver- </td>
+              <td class="bar1"><a-chord>F#m</a-chord> -saa-aa-aa-  <a-chord>G</a-chord> -tion </td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> She's coming  <a-chord>C#m7</a-chord> in 12:30</td>
+              <td class="bar1"><a-chord>F#m</a-chord> flight, her  <a-chord>A/E</a-chord> moonlit wings re-</td>
+              <td class="bar1"><a-chord>G</a-chord> -flect the stars that  <a-chord>Bm7</a-chord> guide me towards sal- </td>
+              <td class="bar1"><a-chord>F#m</a-chord> -vaa-aa-aa-  <a-chord>G</a-chord> -tion</td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> I stopped an  <a-chord>C#m7</a-chord> old man along the </td>
+              <td class="bar1"><a-chord>F#m</a-chord> way   <a-chord>A/E</a-chord> Hoping to find some </td>
+              <td class="bar1"><a-chord>G</a-chord> old forgotten  <a-chord>Bm7</a-chord> words or ancient </td>
+              <td class="bar1"><a-chord>F#m</a-chord> me-eeeee-elo-  <a-chord>G</a-chord> -dies</td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> He turned to  <a-chord>C#m7</a-chord> me as if to </td>
+              <td class="bar1"><a-chord>F#m</a-chord> say   <a-chord>A/E</a-chord> "Hurry boy, it's </td>
+              <td class="bar1"><a-chord>G</a-chord> waiting there for you" <a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> It's gonna take a  <a-chord>C</a-chord> lot to drag me a- </td>
+              <td class="bar1"><a-chord>G</a-chord> -way from  <a-chord>D</a-chord> you </td>
+              <td class="bar1"><a-chord>Em</a-chord> There's nothing that a  <a-chord>C</a-chord> hundred men or </td>
+              <td class="bar1"><a-chord>G</a-chord> more could ever  <a-chord>D</a-chord> do </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+              <td class="bar1"><a-chord>Em</a-chord> Gonna take some  <a-chord>C</a-chord> time to do the </td>
+              <td class="bar1"><a-chord>G</a-chord> things we never  <a-chord>Bm</a-chord> Haa-aa-aa- </td>
+              <td class="bar1" colspan="2"><a-chord>D</a-chord> -aa-aa-aa-  <a-chord>Em</a-chord> -aad <a-chord>Dsus2/F#</a-chord> </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="intro">
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+	    	    <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> The wild dogs  <a-chord>C#m7</a-chord> cry out in the</td>
+              <td class="bar1"><a-chord>F#m</a-chord> night, as   <a-chord>A/E</a-chord> they grow restless</td>
+              <td class="bar1"><a-chord>G</a-chord> longing for some  <a-chord>Bm7</a-chord> solitary </td>
+              <td class="bar1"><a-chord>F#m</a-chord> coo-oo-oom-  <a-chord>G</a-chord> -pany </td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> I know that  <a-chord>C#m7</a-chord> I must do what's</td>
+              <td class="bar1"><a-chord>F#m</a-chord> right, as sure as  <a-chord>A/E</a-chord> Kilimanjaro </td>
+              <td class="bar1"><a-chord>G</a-chord> rises like O-  <a-chord>Bm7</a-chord> -lympus above the </td>
+              <td class="bar1"><a-chord>F#m</a-chord> Se-ee-ren-ge-  <a-chord>G</a-chord> -ti</td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> I seek to  <a-chord>C#m7</a-chord> cure what's deep in- </td>
+              <td class="bar1"><a-chord>F#m</a-chord> side   <a-chord>A/E</a-chord> Frightened of this </td>
+              <td class="bar1"><a-chord>G</a-chord> thing that I've become <a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <thead>
+            <tr>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="half">2</th>
+              <th class="half">2</th>
+            </tr>
+          </thead>
+          <tbody>
+
+	          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> It's gonna take a  <a-chord>C</a-chord> lot to drag me a- </td>
+              <td class="bar1"><a-chord>G</a-chord> -way from  <a-chord>D</a-chord> you </td>
+              <td class="bar1"><a-chord>Em</a-chord> There's nothing that a  <a-chord>C</a-chord> hundred men or </td>
+              <td class="bar1"><a-chord>G</a-chord> more could ever  <a-chord>D</a-chord> do </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+              <td class="bar1"><a-chord>Em</a-chord> Gonna take some  <a-chord>C</a-chord> time to do the </td>
+              <td class="bar1"><a-chord>G</a-chord> things we never  <a-chord>Bm</a-chord> Haa-aa-aa- </td>
+              <td class="bar1" colspan="2"><a-chord>D</a-chord> -aa-aa-aa-  <a-chord>Em</a-chord> -aad <a-chord>Dsus2/F#</a-chord> </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="intro">
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> <a-chord>C#m7</a-chord> 🎶 </td>
+              <td class="bar1"><a-chord>F#m</a-chord> <a-chord>A/E</a-chord> 🎶</td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>Bm7</a-chord> 🎶</td>
+              <td class="bar1"><a-chord>F#m</a-chord> <a-chord>G</a-chord> 🎶</td>
+              <td><a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm</a-chord></td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>A</a-chord> <a-chord>C#m7</a-chord> 🎶</td>
+              <td class="bar1"><a-chord>F#m</a-chord> 🎶 <a-chord>A/E</a-chord> "Hurry boy, she's </td>
+              <td class="bar1"><a-chord>G</a-chord> waiting there for you" <a-chord>G</a-chord><a-chord>F#m</a-chord><a-chord>Bm7</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> It's gonna take a  <a-chord>C</a-chord> lot to drag me a- </td>
+              <td class="bar1"><a-chord>G</a-chord> -way from  <a-chord>D</a-chord> you </td>
+              <td class="bar1"><a-chord>Em</a-chord> There's nothing that a  <a-chord>C</a-chord> hundred men or </td>
+              <td class="bar1"><a-chord>G</a-chord> more could ever  <a-chord>D</a-chord> do </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>Em</a-chord> I bless the  <a-chord>C</a-chord> rains down in </td>
+              <td class="bar1"><a-chord>G</a-chord> Aaaa-fri-  <a-chord>D</a-chord> -caaaa </td>
+              <td class="bar1"><a-chord>Em</a-chord> Gonna take some  <a-chord>C</a-chord> time to do the </td>
+              <td class="bar1"><a-chord>G</a-chord> things we never  <a-chord>Bm</a-chord> Haa-aa-aa- </td>
+              <td class="bar1" colspan="2"><a-chord>D</a-chord> -aa-aa-aa-  <a-chord>Em</a-chord> -aad <a-chord>Dsus2/F#</a-chord> </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="intro">
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>G</a-chord> <a-chord>F#m</a-chord> <a-chord>Bm</a-chord></td>
+              <td class="bar1"><a-chord>Bm</a-chord></td>
+              <td class="skip" colspan="2">Repeat and fade</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Octopus's Garden</title>
+
+    <script>
+      // Most commonly used names on guitar in a chord context 
+      const SCALE = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+
+      function transposeNote(note, delta) {
+        let note_i = SCALE.findIndex(e => e == note)
+        let transposed_i = (note_i + delta % SCALE.length + SCALE.length) % SCALE.length
+        return SCALE[transposed_i]
+      }
+
+      const CHORD_PATTERN = /^([A-G][\#b]?)([a-z0-9]*)(\/([A-G][\#b]?))?$/
+
+      function parseChord(chord) {
+        let [all, root, modifier, slash, over] = chord.match(CHORD_PATTERN)
+        return {root: root, modifier: modifier, over: over}
+      }
+
+      function parsedChordString(parsed) {
+        let {root, modifier, over} = parsed
+        let str = `${root}${modifier}`
+        if (over) str += `/${over}`
+        return str
+      }
+
+      function transposeChord(chord, delta) {
+        let {root, modifier, over} = parseChord(chord)
+        return parsedChordString({
+          root: transposeNote(root, delta),
+          modifier: modifier,
+          over: over && transposeNote(over, delta)
+         })
+      }
+
+      let firstChordDelta = 0
+
+      function addTransposer(chord) {
+        let select = document.createElement("select")
+        select.name = "First chord"
+        select.id = "first_chord"
+
+        for (let delta = 0; delta < SCALE.length; ++delta) {
+          let t_chord = transposeChord(chord, delta)
+
+          let option = document.createElement("option")
+          option.value = delta
+          option.text = t_chord
+
+          select.appendChild(option)
+        }
+
+        document.getElementById("transposer").appendChild(select)
+
+        select.addEventListener("change", () => {
+            console.log("change", select.value)
+            transposeAll(select.value - firstChordDelta)
+            firstChordDelta = select.value
+          })
+      }
+
+      const NO_CAPO = "no capo"
+      let currentCapo = undefined
+
+      function normaliseCapo(capo) {
+        let capo_n = 0;
+        if (capo !== NO_CAPO) {
+          let [, capo_s] = capo.match(/capo (\d+)/)
+          capo_n = parseInt(capo_s)
+        }
+        return capo_n
+      }
+
+      function denormaliseCapo(capo_n) {
+        let capo = NO_CAPO
+        if (capo_n !== 0) {
+          capo = `capo ${capo_n}`
+        }
+        return capo
+      }
+
+      function transposeAll(delta) {
+        let chordElts = document.querySelectorAll("a-chord")
+        for (let chordElt of chordElts) {
+          let undelimited = chordElt.textContent
+          let t_chord = transposeChord(undelimited, delta)
+          chordElt.textContent = t_chord
+        }
+
+        let capoElt = document.getElementById("capo")
+        let capo_n = normaliseCapo(capoElt.textContent)
+        capo_n = (capo_n - delta + SCALE.length) % SCALE.length
+
+        capoElt.textContent = denormaliseCapo(capo_n)
+      }
+
+      function setup() {
+        let chordElts = document.querySelectorAll("a-chord")
+        let firstChordElt = chordElts[0]
+        addTransposer(firstChordElt.textContent)
+      }
+    </script>
+
+    <style>
+      body {
+    	  font-family: sans-serif;
+    	  font-size: 11pt;
+    	}
+
+      .song {
+    	  font-size: 13pt;
+        font-weight: bold;
+      }
+
+      .container {
+	      display: flex;
+      }
+
+      .column {
+        flex: 50%;
+	      margin: 0.5em;
+      }
+
+      table {
+	      width: 100%;
+	      background-color: white;
+	      color: black;
+      }
+
+      thead {
+	      background-color: lightgrey;
+	      color: black;
+      }
+
+      td {
+	      vertical-align: top;
+	      text-align: center;
+      }
+
+      a-chord:before {
+        content: '['
+      }
+
+      a-chord:after {
+        content: ']'
+      }
+
+      a-chord {
+        font-size: 10pt;
+        font-weight: bold
+      }
+
+      .spacer {
+	      background-color: white;
+	      color: white;
+      }
+
+      .skip {
+	      background-color: white;
+      }
+
+      .intro {
+	      background-color: lightgreen;
+      }
+
+      .verse {
+	      background-color: navajowhite;
+      }
+
+      .chorus {
+	      background-color: lightblue;
+      }
+
+      .instrumental {
+	      background-color: lightpink;
+      }
+
+      .half {
+	      width: 10%;
+      }
+
+      .bar1 {
+	      width: 20%;
+      }
+
+      .bar2 {
+	      width: 40%;
+      }
+    </style>
+  </head>
+
+  <body onload="setup()">
+    <span class="song">Octopus's Garden v1.0</span> - <span id="transposer">first chord </span> (<span id="capo">no capo</span> for recorded key)
+
+    <div class="container">
+      <div class="column">
+        <table>
+
+      	  <thead>
+            <tr>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+	    
+            <tr class="intro">
+              <td class="bar1">🎸🎶</td>
+              <td class="bar1">🎸🎶</td>
+              <td class="bar1"><a-chord>E</a-chord>🎸🎶 <a-chord>C#m</a-chord>🎸🎶 <a-chord>A</a-chord>🎸🎶 <a-chord>B</a-chord>🎸🎶</td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> I'd like to be... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> under the sea... in an </td>
+              <td class="bar1"><a-chord>A</a-chord> octopus's garden... in the </td>
+              <td class="bar1"><a-chord>B</a-chord> shade </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> He'd let us in... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> knows where we've been... in his </td>
+              <td class="bar1"><a-chord>A</a-chord> octopus's garden... in the </td>
+              <td class="bar1"><a-chord>B</a-chord> shade </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>C#m</a-chord> I'd ask my frieeeends to </td>
+              <td class="bar1"><a-chord>C#m</a-chord> cooooome and seeeee <a-chord>B</a-chord> </td>
+              <td class="bar1"><a-chord>A</a-chord> An octopuuuus's </td>
+              <td class="bar1"><a-chord>B</a-chord> gar-den with me </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>E</a-chord>  (🎤) I'd like to be... </td>
+              <td class="bar1"><a-chord>C#m</a-chord>  (🎤) Under the sea... in an </td>
+              <td class="bar1"><a-chord>A</a-chord> (🎤) octopus's  <a-chord>B</a-chord> (🎤) garden in the </td>
+              <td class="bar1"><a-chord>E</a-chord> (🎤) shade  </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> We would be warm...(🎤 ooh-ooh)... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> below the storm...(🎤 ooh-ooh)... in our </td>
+              <td class="bar1"><a-chord>A</a-chord> little hideaway... beneath the </td>
+              <td class="bar1"><a-chord>B</a-chord> waves (🎤 ah-ah-ah-ah-ah-ah)  </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> Resting our head...(🎤 ooh-ooh)... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> on the seabed...(🎤 ooh-ooh)... in an </td>
+              <td class="bar1"><a-chord>A</a-chord> octopus's garden... near a </td>
+              <td class="bar1"><a-chord>B</a-chord> cave (🎤 ah-ah-ah-ah-ah-ah) </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>C#m</a-chord> We would sing and </td>
+              <td class="bar1"><a-chord>C#m</a-chord> dance around <a-chord>B</a-chord> </td>
+              <td class="bar1"><a-chord>A</a-chord> because we know </td>
+              <td class="bar1"><a-chord>B</a-chord> we can't be found </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>E</a-chord> (🎤) I'd like to be... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> (🎤) Under the sea... in an </td>
+              <td class="bar1"><a-chord>A</a-chord> (🎤) octopus's <a-chord>B</a-chord> (🎤) garden in the </td>
+              <td class="bar1"><a-chord>E</a-chord> (🎤) shade </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="instrumental">
+              <td class="bar1"><a-chord>A</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>F#m</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>D</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>E</a-chord> 🎸🎶 </td>
+            </tr>
+            <tr class="instrumental">
+              <td class="bar1"><a-chord>A</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>F#m</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>D</a-chord> 🎸🎶 <a-chord>E</a-chord> 🎸🎶 </td>
+              <td class="bar1"><a-chord>A</a-chord> 🎸🎶 <a-chord>B</a-chord> 🎸🎶 </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <thead>
+            <tr>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+              <th class="bar1">4</th>
+            </tr>
+          </thead>
+          <tbody>
+
+	          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> We would shout...(🎤 aah-aah)... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> and swim about...(🎤 ooh-ooh)... the   </td>
+              <td class="bar1"><a-chord>A</a-chord> coral that lies beneath the </td>
+              <td class="bar1"><a-chord>B</a-chord> waves (🎤 lies be-neath the ocean waves) </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1"><a-chord>E</a-chord> Oh what joy...(🎤 aah-aah)... for </td>
+              <td class="bar1"><a-chord>C#m</a-chord> every girl and boy...(🎤 ooh-ooh)... </td>
+              <td class="bar1"><a-chord>A</a-chord> knowing... they're happy... and they're </td>
+              <td class="bar1"><a-chord>B</a-chord> safe (🎤 ha-ppy and they're safe) </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>C#m</a-chord> We would be-ee-ee so </td>
+              <td class="bar1"><a-chord>C#m</a-chord> happy-yy you and me <a-chord>B</a-chord> </td>
+              <td class="bar1"><a-chord>A</a-chord> no one there to tell us what to </td>
+              <td class="bar1"><a-chord>B</a-chord> do </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1"><a-chord>E</a-chord> I'd like to be...(🎤 aah-aah)... </td>
+              <td class="bar1"><a-chord>C#m</a-chord> Under the sea...(🎤 aah-aah)... in an </td>
+              <td class="bar1"><a-chord>A</a-chord> octopus's (🎤 aah) <a-chord>B</a-chord> garden with (🎤 aah) </td>
+              <td class="bar1"><a-chord>C#m</a-chord> you... (🎤 aah) <a-chord>B</a-chord> in an</td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1"><a-chord>A</a-chord> octopus's (🎤 aah) <a-chord>B</a-chord> garden with (🎤 aah) </td>
+              <td class="bar1"><a-chord>C#m</a-chord> you... (🎤 aah) <a-chord>B</a-chord> in an </td>
+              <td class="bar1"><a-chord>A</a-chord> octopus's (🎤 aah) <a-chord>B</a-chord> garden with (🎤 aah) </td>
+              <td class="bar1"><a-chord>E</a-chord> you 🎸🎶 </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </body>
+</html>

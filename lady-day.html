@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Lady Day and John Coltrane</title>
+
+    <script>
+      // Most commonly used names on guitar in a chord context 
+      const SCALE = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+
+      function transposeNote(note, delta) {
+        let note_i = SCALE.findIndex(e => e == note)
+        let transposed_i = (note_i + delta % SCALE.length + SCALE.length) % SCALE.length
+        return SCALE[transposed_i]
+      }
+
+      const CHORD_PATTERN = /^([A-G][\#b]?)([a-z0-9]*)(\/([A-G][\#b]?))?$/
+
+      function parseChord(chord) {
+        let [all, root, modifier, slash, over] = chord.match(CHORD_PATTERN)
+        return {root: root, modifier: modifier, over: over}
+      }
+
+      function parsedChordString(parsed) {
+        let {root, modifier, over} = parsed
+        let str = `${root}${modifier}`
+        if (over) str += `/${over}`
+        return str
+      }
+
+      function transposeChord(chord, delta) {
+        let {root, modifier, over} = parseChord(chord)
+        return parsedChordString({
+          root: transposeNote(root, delta),
+          modifier: modifier,
+          over: over && transposeNote(over, delta)
+         })
+      }
+
+      let firstChordDelta = 0
+
+      function addTransposer(chord) {
+        let select = document.createElement("select")
+        select.name = "First chord"
+        select.id = "first_chord"
+
+        for (let delta = 0; delta < SCALE.length; ++delta) {
+          let t_chord = transposeChord(chord, delta)
+
+          let option = document.createElement("option")
+          option.value = delta
+          option.text = t_chord
+
+          select.appendChild(option)
+        }
+
+        document.getElementById("transposer").appendChild(select)
+
+        select.addEventListener("change", () => {
+            console.log("change", select.value)
+            transposeAll(select.value - firstChordDelta)
+            firstChordDelta = select.value
+          })
+      }
+
+      const NO_CAPO = "no capo"
+      let currentCapo = undefined
+
+      function normaliseCapo(capo) {
+        let capo_n = 0;
+        if (capo !== NO_CAPO) {
+          let [, capo_s] = capo.match(/capo (\d+)/)
+          capo_n = parseInt(capo_s)
+        }
+        return capo_n
+      }
+
+      function denormaliseCapo(capo_n) {
+        let capo = NO_CAPO
+        if (capo_n !== 0) {
+          capo = `capo ${capo_n}`
+        }
+        return capo
+      }
+
+      function transposeAll(delta) {
+        let chordElts = document.querySelectorAll("a-chord")
+        for (let chordElt of chordElts) {
+          let undelimited = chordElt.textContent
+          let t_chord = transposeChord(undelimited, delta)
+          chordElt.textContent = t_chord
+        }
+
+        let capoElt = document.getElementById("capo")
+        let capo_n = normaliseCapo(capoElt.textContent)
+        capo_n = (capo_n - delta + SCALE.length) % SCALE.length
+
+        capoElt.textContent = denormaliseCapo(capo_n)
+      }
+
+      function setup() {
+        let chordElts = document.querySelectorAll("a-chord")
+        let firstChordElt = chordElts[0]
+        addTransposer(firstChordElt.textContent)
+      }
+    </script>
+
+    <style>
+      body {
+    	  font-family: sans-serif;
+    	  font-size: 11pt;
+    	}
+
+      .song {
+    	  font-size: 13pt;
+        font-weight: bold;
+      }
+
+      .container {
+	      display: flex;
+      }
+
+      .column {
+        flex: 50%;
+	      margin: 0.5em;
+      }
+
+      table {
+	      width: 100%;
+	      background-color: white;
+	      color: black;
+      }
+
+      thead {
+	      background-color: lightgrey;
+	      color: black;
+      }
+
+      td {
+	      vertical-align: top;
+	      text-align: center;
+      }
+
+      a-chord:before {
+        content: '['
+      }
+
+      a-chord:after {
+        content: ']'
+      }
+
+      a-chord {
+        font-size: 10pt;
+        font-weight: bold
+      }
+
+      .spacer {
+	      background-color: white;
+	      color: white;
+      }
+
+      .skip {
+	      background-color: white;
+      }
+
+      .intro {
+	      background-color: lightgreen;
+      }
+
+      .verse {
+	      background-color: navajowhite;
+      }
+
+      .chorus {
+	      background-color: lightblue;
+      }
+
+      .instrumental {
+	      background-color: lightpink;
+      }
+
+      .half {
+        width: 12.5%;
+        colspan: 1;
+      }
+
+      .bar1 {
+	      colspan: 2;
+      }
+
+      .bar2 {
+      }
+    </style>
+  </head>
+
+  <body onload="setup()">
+    <span class="song">Lady Day and John Coltrane</span> - <span id="transposer">first chord </span> (<span id="capo">no capo</span> for recorded key)
+
+    <div class="container">
+      <div class="column">
+        <table>
+
+      	  <thead>
+            <tr>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+              <th class="half">4</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="intro">
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> <a-chord>C7sus4</a-chord></td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> <a-chord>C7sus4</a-chord></td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> <a-chord>C7sus4</a-chord></td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> <a-chord>C7sus4</a-chord></td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> <a-chord>C7sus4</a-chord> Ever feel kind of down and out </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord> You don't know just what to do- <a-chord>C7sus4</a-chord> <br> -oo-oo</td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  Living all of your days in </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  darkness. Let the <a-chord>C7sus4</a-chord> sun shine through</td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  <a-chord>F7sus4</a-chord>  Ever feel that somehow  </td>
+              <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  somewhere you lost your way-  <a-chord>F7sus4</a-chord>  -ay-ay</td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  And if you don't get help quick </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  You won't make it <a-chord>C7sus4</a-chord>  through the day? </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> Could you call on  <a-chord>Fm7</a-chord> Lady Day? </td>
+              <td class="bar1" colspan="2"> <a-chord>Bb7sus4</a-chord> Could you call on  <a-chord>C7sus4</a-chord> John Coltrane now? cause </td>
+              <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> they'll, they'll wash your <a-chord>Fm7</a-chord> troubles, your </td>
+              <td class="half" colspan="1"> <a-chord>Bb7sus4</a-chord> troubles, your troubles </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  your troubles a- <a-chord>C7sus4</a-chord> -way! </td>
+              <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord> </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  Plastic people with plastic minds </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  Are on their way to plastic ho-  <a-chord>C7sus4</a-chord>  -o-omes </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  No beginning, there ain't no  </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  ending. Just on and  <a-chord>C7sus4</a-chord>  on and on and on and on</td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  <a-chord>F7sus4</a-chord>  t's all because they're so afraid to say   </td>
+              <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  that they're alo-  <a-chord>F7sus4</a-chord>  -o-one </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  Until our hero rides in  </td>
+              <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  rides in on his  <a-chord>C7sus4</a-chord>  saxophone </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> Could you call on  <a-chord>Fm7</a-chord> Lady Day? </td>
+              <td class="bar1" colspan="2"> <a-chord>Bb7sus4</a-chord> Could you call on  <a-chord>C7sus4</a-chord> John Coltrane now? cause </td>
+              <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> they'll, they'll wash your <a-chord>Fm7</a-chord> troubles, your </td>
+              <td class="half" colspan="1"> <a-chord>Bb7sus4</a-chord> troubles, your troubles </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  your troubles a- <a-chord>C7sus4</a-chord> -way! </td>
+              <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord> </td>
+            </tr>
+
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <thead>
+          <tr>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+            <th class="half">4</th>
+          </tr>
+          </thead>
+          <tbody>
+
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr class="verse">
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+          </tr>
+          <tr class="verse">
+            <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  <a-chord>F7sus4</a-chord>   </td>
+            <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>   <a-chord>F7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  </td>
+          </tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord>  <a-chord>Fm7</a-chord>  </td>
+            <td class="bar1" colspan="2"> <a-chord>Bb7sus4</a-chord>   <a-chord>C7sus4</a-chord> </td>
+            <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord>  <a-chord>Fm7</a-chord>  </td>
+            <td class="half" colspan="1"> <a-chord>Bb7sus4</a-chord> </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>   <a-chord>C7sus4</a-chord>  </td>
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord> Alright </td>
+          </tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+
+          <tr class="verse">
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  Ever feel kind of down and out </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  You don't know just what to do-  <a-chord>C7sus4</a-chord>  -oo-oo</td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  Living all of your days in </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  darkness. Let the <a-chord>C7sus4</a-chord>  sun shine through</td>
+          </tr>
+          <tr class="verse">
+            <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  <a-chord>F7sus4</a-chord>  Ever feel that somehow  </td>
+            <td class="bar1" colspan="2"><a-chord>F7sus4</a-chord>  somewhere you lost your way-  <a-chord>F7sus4</a-chord>  -ay-ay</td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  <a-chord>C7sus4</a-chord>  And if you don't get help quick </td>
+            <td class="bar1" colspan="2"><a-chord>C7sus4</a-chord>  You won't make it <a-chord>C7sus4</a-chord>  through the day? </td>
+          </tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> Could you call on  <a-chord>Fm7</a-chord> Lady Day? </td>
+            <td class="bar1" colspan="2"> <a-chord>Bb7sus4</a-chord> Could you call on  <a-chord>C7sus4</a-chord> John Coltrane now? cause </td>
+            <td class="bar1" colspan="2"> <a-chord>Gm7</a-chord> they'll, they'll wash your <a-chord>Fm7</a-chord> troubles, your </td>
+            <td class="bar1" colspan="2"> <a-chord>Bb7sus4</a-chord> troubles, your troubles <a-chord>Bb7sus4</a-chord> your troubles </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> <a-chord>B7sus4</a-chord> your troubles <a-chord>B7sus4</a-chord> your troubles </td>
+            <td class="half" colspan="1"> <a-chord>Bb7sus4</a-chord> troubles, your troubles </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord>  your troubles a- <a-chord>C7sus4</a-chord> -way! </td>
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord> They'll wash your troubles a-  <a-chord>C7sus4</a-chord> -wa-a-ay </td>
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord> They'll wash your troubles, your  <a-chord>C7sus4</a-chord> troubles, your troubles, your troubles </td>
+            <td class="bar1" colspan="2"> <a-chord>C7sus4</a-chord> They'll wash your troubles a-  <a-chord>C7sus4</a-chord> -wa-a-ay </td>
+          </tr>
+
+
+          </tbody>
+        </table>
+
+        <br>The add9's and add11's are just leaving the high E and/or B ringing open
+
+      </div>
+    </div>
+  </body>
+</html>

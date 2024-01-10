@@ -2,6 +2,7 @@
 
 * [Mr Blue Sky by ELO](https://experimentsin.github.io/mr-blue-sky.html)
 * [Reelin' in the Years by Steely Dan](https://experimentsin.github.io/reelin-in-the-years.html)
+* [Take it Easy by Eagles](https://experimentsin.github.io/take-it-easy.html)
 
 # Previous Gigs
 

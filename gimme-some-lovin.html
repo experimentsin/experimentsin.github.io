@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Gimme some Livin'</title>
+
+    <script>
+      // Most commonly used names on guitar in a chord context 
+      const SCALE = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+
+      function transposeNote(note, delta) {
+        let note_i = SCALE.findIndex(e => e == note)
+        let transposed_i = (note_i + delta % SCALE.length + SCALE.length) % SCALE.length
+        return SCALE[transposed_i]
+      }
+
+      const CHORD_PATTERN = /^([A-G][\#b]?)([a-z0-9]*)(\/([A-G][\#b]?))?( .*)?$/
+
+      function parseChord(chord) {
+        let [all, root, modifier, slash, over, annotation] = chord.match(CHORD_PATTERN)
+        return {root: root, modifier: modifier, over: over, annotation: annotation}
+      }
+
+      function parsedChordString(parsed) {
+        let {root, modifier, over, annotation} = parsed
+        let str = `${root}${modifier}`
+        if (over) str += `/${over}`
+        if (annotation) str += ` ${annotation}`
+        return str
+      }
+
+      function transposeChord(chord, delta, keepAnnotation = true) {
+        let {root, modifier, over, annotation} = parseChord(chord)
+        return parsedChordString({
+          root: transposeNote(root, delta),
+          modifier: modifier,
+          over: over && transposeNote(over, delta),
+          annotation: keepAnnotation ? annotation : undefined
+         })
+      }
+
+      let firstChordDelta = 0
+
+      function addTransposer(chord) {
+        let select = document.createElement("select")
+        select.name = "First chord"
+        select.id = "first_chord"
+
+        for (let delta = 0; delta < SCALE.length; ++delta) {
+          let t_chord = transposeChord(chord, delta, false)
+
+          let option = document.createElement("option")
+          option.value = delta
+          option.text = t_chord
+
+          select.appendChild(option)
+        }
+
+        document.getElementById("transposer").appendChild(select)
+
+        select.addEventListener("change", () => {
+            console.log("change", select.value)
+            transposeAll(select.value - firstChordDelta)
+            firstChordDelta = select.value
+          })
+      }
+
+      const NO_CAPO = "no capo"
+      let currentCapo = undefined
+
+      function normaliseCapo(capo) {
+        let capo_n = 0;
+        if (capo !== NO_CAPO) {
+          let [, capo_s] = capo.match(/capo (\d+)/)
+          capo_n = parseInt(capo_s)
+        }
+        return capo_n
+      }
+
+      function denormaliseCapo(capo_n) {
+        let capo = NO_CAPO
+        if (capo_n !== 0) {
+          capo = `capo ${capo_n}`
+        }
+        return capo
+      }
+
+      function transposeAll(delta) {
+        let chordElts = document.querySelectorAll("a-chord")
+        for (let chordElt of chordElts) {
+          let undelimited = chordElt.textContent
+          let t_chord = transposeChord(undelimited, delta)
+          chordElt.textContent = t_chord
+        }
+
+        let capoElt = document.getElementById("capo")
+        let capo_n = normaliseCapo(capoElt.textContent)
+        capo_n = (capo_n - delta + SCALE.length) % SCALE.length
+
+        capoElt.textContent = denormaliseCapo(capo_n)
+      }
+
+      function setup() {
+        let chordElts = document.querySelectorAll("a-chord")
+        let firstChordElt = chordElts[0]
+        addTransposer(firstChordElt.textContent)
+      }
+    </script>
+
+    <style>
+      body {
+    	  font-family: sans-serif;
+    	  font-size: 11pt;
+    	}
+
+      .song {
+    	  font-size: 13pt;
+        font-weight: bold;
+      }
+
+      .container {
+	      display: flex;
+      }
+
+      .column {
+        flex: 50%;
+	      margin: 0.5em;
+      }
+
+      table {
+	      width: 100%;
+	      background-color: white;
+	      color: black;
+      }
+
+      thead {
+	      background-color: lightgrey;
+	      color: black;
+      }
+
+      td {
+	      vertical-align: top;
+	      text-align: center;
+      }
+
+      a-chord:before {
+        content: '['
+      }
+
+      a-chord:after {
+        content: ']'
+      }
+
+      a-chord {
+        font-size: 10pt;
+        font-weight: bold
+      }
+
+      .spacer {
+	      background-color: white;
+	      color: white;
+      }
+
+      .skip {
+	      background-color: white;
+      }
+
+      .intro {
+	      background-color: lightgreen;
+      }
+
+      .outro {
+	      background-color: lightpink;
+      }
+
+      .verse {
+	      background-color: #FFDEAD;
+      }
+
+      .verse-solo {
+      	background-color: #EFCE9D;
+      }
+
+      .chorus {
+	      background-color: #ADD8E6;
+      }
+
+      .chorus-solo {
+	      background-color: #9DC8D6;
+      }
+
+      .instrumental {
+	      background-color: lightpink;
+      }
+
+      .half {
+        width: 12.5%;
+        colspan: 1;
+      }
+
+      .bar1 {
+	      colspan: 2;
+      }
+
+      .bar2 {
+      }
+    </style>
+  </head>
+
+  <body onload="setup()">
+    <span class="song">Gimme some Lovin'</span> - <span id="transposer">first chord </span> (<span id="capo">no capo</span> for recorded key)
+    - <a href="https://youtu.be/-aqZmPInK3o?si=oS3P6z6dGS6trbL2">Blues Brothers - Gimme Some Lovin'</a>
+
+    <div class="container">
+      <div class="column">
+        <table>
+
+      	  <thead>
+            <tr>
+              <th class="bar" colspan="2" width="25%">4</th>
+              <th class="bar" colspan="2" width="25%">4</th>
+              <th class="bar" colspan="2" width="25%">4</th>
+              <th class="bar" colspan="2" width="25%">4</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="intro">
+              <td class="bar1" colspan="2"> 🎶 </td>
+              <td class="bar1" colspan="2"> 🎶 </td>
+              <td class="bar1" colspan="2"> 🎶 </td>
+              <td class="bar1" colspan="2"> 🎶 </td>
+            </tr>
+            <tr class="intro">
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            </tr>
+            <tr class="intro">
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 (🎤 Hey!) </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="spacer" colspan="2"></td>
+              <td class="spacer" colspan="2"></td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord>  </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> Well my </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> temperature's rising and my </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> feet are on the floor </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> Twenty people knocking and they </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> wanna go more  </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> Let me in baby I don't </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> know what you got. But you </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> better take it easy... this </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> place is hot </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> So glad we   </td>
+              <td class="bar1" colspan="2">  <a-chord>G</a-chord> made it </td>
+              <td class="bar1" colspan="2">  <a-chord>A</a-chord> So glad we  </td>
+              <td class="bar1" colspan="2">  <a-chord>C</a-chord> made it. You gotta... </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin') </td>
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some  </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin')  </td>
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin', e-ve-ry </td>
+              <td class="bar1" colspan="2">  day 🎶 </td>
+              <td class="bar1" colspan="2">  🎶 Heeeeey, hey </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="intro">
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            </tr>
+            <tr class="intro">
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 </td>
+              <td class="bar1" colspan="2"> 🎶 🎺 (🎤 Hey!) </td>
+            </tr>
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="verse">
+              <td class="spacer" colspan="2"></td>
+              <td class="spacer" colspan="2"></td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord>  </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> Well I </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"> (🎸 riff 2) <a-chord>E</a-chord> <a-chord>A/E</a-chord> feel so good every- </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> -thing is sellin' high. You </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> better take it easy 'cos the </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> place is on fire. It's  </td>
+            </tr>
+            <tr class="verse">
+              <td class="bar1" colspan="2"> (🎸 riff 2) <a-chord>E</a-chord> <a-chord>A/E</a-chord> been a ha-ard day and I </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> don't know what to do </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> We have made it baby, babe it </td>
+              <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> happened to you </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> So glad we   </td>
+              <td class="bar1" colspan="2">  <a-chord>G</a-chord> made it </td>
+              <td class="bar1" colspan="2">  <a-chord>A</a-chord> So glad we  </td>
+              <td class="bar1" colspan="2">  <a-chord>C</a-chord> made it. You gotta... </td>
+            </tr>
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin') </td>
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some  </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin')  </td>
+            <tr class="chorus">
+              <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+              <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin', e-ve-ry </td>
+              <td class="bar1" colspan="2">  day 🎶 </td>
+              <td class="bar1" colspan="2">  🎶 Hey, hey </td>
+            </tr>
+
+            <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <thead>
+          <tr>
+            <th class="bar" colspan="2" width="25%">4</th>
+            <th class="bar" colspan="2" width="25%">4</th>
+            <th class="bar" colspan="2" width="25%">4</th>
+            <th class="bar" colspan="2" width="25%">4</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+
+          <tr class="intro">
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+          </tr>
+          <tr class="intro">
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 </td>
+            <td class="bar1" colspan="2"> 🎶 🎺 (🎤 Hey!) </td>
+          </tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr class="verse">
+            <td class="spacer" colspan="2"></td>
+            <td class="spacer" colspan="2"></td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord>  </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> Well I </td>
+          </tr>
+          <tr class="verse">
+            <td class="bar1" colspan="2"> (🎸 riff 2) <a-chord>E</a-chord> <a-chord>A/E</a-chord> feel so good every- </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> -body's gettin' high. You </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> better take it easy 'cos the </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> place is on fire.   </td>
+          </tr>
+          <tr class="verse">
+            <td class="bar1" colspan="2"> (🎸 riff 2) <a-chord>E</a-chord> <a-chord>A/E</a-chord> Been a hard day, nothin' </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> went to-oo good. Now I'm </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> gonna relax honey </td>
+            <td class="bar1" colspan="2"> <a-chord>E</a-chord> <a-chord>A/E</a-chord> everybody should. </td>
+          </tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr class="chorus">
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> So glad we   </td>
+            <td class="bar1" colspan="2">  <a-chord>G</a-chord> made it </td>
+            <td class="bar1" colspan="2">  <a-chord>A</a-chord> So glad we  </td>
+            <td class="bar1" colspan="2">  <a-chord>C</a-chord> made it. You gotta... </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin') </td>
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some  </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin')  </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some   </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin') </td>
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some  </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin')  </td>
+          </tr>
+          <tr class="chorus">
+            <td class="bar1" colspan="2"> (🎸) <a-chord>E</a-chord> Gimme some   </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin') </td>
+            <td class="bar1" colspan="2">  <a-chord>E</a-chord> Gimme some  </td>
+            <td class="bar1" colspan="2">  <a-chord>A/E</a-chord> lovin' (🎤 gimme gimme some lovin')  </td>
+          </tr>
+          <tr><td colspan="8" width="100%">Repeat and fade </td></tr>
+
+          <tr class="spacer"><td>Spacer</td><td>Spacer</td><td>Spacer</td><td>Spacer</td></tr>
+
+          <tr><td colspan="8" width="100%"> (🎸 riff N) Main riff variant / (🎸) Guitar fill / 🎺 Brass/organ riff / 🎤 Backing vocals </td></tr>
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </body>
+</html>

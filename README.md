@@ -4,7 +4,7 @@
 * [Reelin' in the Years by Steely Dan](https://experimentsin.github.io/reelin-in-the-years.html)
 * [Take it Easy by Eagles](https://experimentsin.github.io/take-it-easy.html)
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)
-
+* [Otherside by Red Hot Chili Peppers](https://experimentsin.github.io/otherside.html)
 
 # Previous Gigs
 

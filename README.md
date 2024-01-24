@@ -5,7 +5,7 @@
 * [Take it Easy by Eagles](https://experimentsin.github.io/take-it-easy.html)
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)
 * [Otherside by Red Hot Chili Peppers](https://experimentsin.github.io/otherside.html)
-* [Sledgehammer by Peter Gabriel](https://youtu.be/OJWJE0x7T4Q?si=2LrZOc-Jr2tuWgRq&t=12)
+* [Sledgehammer by Peter Gabriel](https://experimentsin.github.io/sledgehammer.html)
 # Previous Gigs
 
 * [Africa by Toto](https://experimentsin.github.io/toto-africa-chart.html)

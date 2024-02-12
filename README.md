@@ -6,6 +6,8 @@
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)
 * [Otherside by Red Hot Chili Peppers](https://experimentsin.github.io/otherside.html)
 * [Sledgehammer by Peter Gabriel](https://experimentsin.github.io/sledgehammer.html)
+* [Maybe I'm Amazed by Paul McCartney](https://experimentsin.github.io/maybe-im-amazed.html)
+
 # Previous Gigs
 
 * [Africa by Toto](https://experimentsin.github.io/toto-africa-chart.html)

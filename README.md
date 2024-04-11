@@ -1,12 +1,12 @@
 # Next Gig 
 
-* [Mr Blue Sky by ELO](https://experimentsin.github.io/mr-blue-sky.html)
-* [Reelin' in the Years by Steely Dan](https://experimentsin.github.io/reelin-in-the-years.html)
-* [Take it Easy by Eagles](https://experimentsin.github.io/take-it-easy.html)
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)
-* [Otherside by Red Hot Chili Peppers](https://experimentsin.github.io/otherside.html)
-* [Sledgehammer by Peter Gabriel](https://experimentsin.github.io/sledgehammer.html)
 * [Maybe I'm Amazed by Paul McCartney](https://experimentsin.github.io/maybe-im-amazed.html)
+* [Take it Easy by Eagles](https://experimentsin.github.io/take-it-easy.html)
+* [Otherside by Red Hot Chili Peppers](https://experimentsin.github.io/otherside.html)
+* [Reelin' in the Years by Steely Dan](https://experimentsin.github.io/reelin-in-the-years.html)
+* [Sledgehammer by Peter Gabriel](https://experimentsin.github.io/sledgehammer.html)
+* [Mr Blue Sky by ELO](https://experimentsin.github.io/mr-blue-sky.html)
 
 # Previous Gigs
 

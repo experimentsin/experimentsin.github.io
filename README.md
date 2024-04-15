@@ -8,6 +8,10 @@
 * [Sledgehammer by Peter Gabriel](https://experimentsin.github.io/sledgehammer.html)
 * [Mr Blue Sky by ELO](https://experimentsin.github.io/mr-blue-sky.html)
 
+# Acoustic slots
+
+* [Trouble by Lindsey Buckingham](https://experimentsin.github.io/trouble.html)
+
 # Previous Gigs
 
 * [Africa by Toto](https://experimentsin.github.io/toto-africa-chart.html)

@@ -1,3 +1,11 @@
+# Tuesday Sessions
+
+* [Going to California](https://experimentsin.github.io/going-to-california.html)
+* [No Surprises](https://experimentsin.github.io/no-surprises.html)
+* [The Last Thing on my Mind](https://experimentsin.github.io/last-thing.html)
+* [Roads](https://experimentsin.github.io/roads.html)
+* [Harvest Moon](https://experimentsin.github.io/harvest-moon.html)
+
 # Next Gig 
 
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)

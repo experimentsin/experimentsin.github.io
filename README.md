@@ -5,6 +5,8 @@
 * [The Last Thing on my Mind](https://experimentsin.github.io/last-thing.html)
 * [Roads](https://experimentsin.github.io/roads.html)
 * [Harvest Moon](https://experimentsin.github.io/harvest-moon.html)
+* [For What It's Worth](https://experimentsin.github.io/fwiw.html)
+
 
 # Next Gig 
 

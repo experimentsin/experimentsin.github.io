@@ -1,6 +1,7 @@
 # November Gig
 
 * [Sunshine Of Your Love](https://experimentsin.github.io/sunshine-of-your-love.html)
+* [Gimme All Your Lovin'](https://experimentsin.github.io/gimme-all-your-lovin.html)
 
 # Tuesday Sessions
 

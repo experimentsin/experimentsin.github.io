@@ -1,3 +1,7 @@
+# November Gig
+
+* [Sunshine Of Your Love](https://experimentsin.github.io/sunshine-of-your-love.html)
+
 # Tuesday Sessions
 
 * [Going to California](https://experimentsin.github.io/going-to-california.html)
@@ -8,7 +12,7 @@
 * [For What It's Worth](https://experimentsin.github.io/fwiw.html)
 * [Here Comes the Sun](https://experimentsin.github.io/here-comes-the-sun.html)
 
-# Next Gig 
+# Last Gig 
 
 * [Gimme some Lovin'](https://experimentsin.github.io/gimme-some-lovin.html)
 * [Maybe I'm Amazed by Paul McCartney](https://experimentsin.github.io/maybe-im-amazed.html)

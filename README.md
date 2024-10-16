@@ -2,7 +2,7 @@
 
 * [Sunshine Of Your Love](https://experimentsin.github.io/sunshine-of-your-love.html)
 * [Gimme All Your Lovin'](https://experimentsin.github.io/gimme-all-your-lovin.html)
-* [Whiskey In The Jar](https://experimentsin.github.io/gimme-all-your-lovin.html/whiskey-in-the-jar.html)
+* [Whiskey In The Jar](https://experimentsin.github.io/whiskey-in-the-jar.html)
 
 # Tuesday Sessions
 

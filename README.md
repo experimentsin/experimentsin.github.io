@@ -4,6 +4,7 @@
 * [Gimme All Your Lovin'](https://experimentsin.github.io/gimme-all-your-lovin.html)
 * [Whiskey In The Jar](https://experimentsin.github.io/whiskey-in-the-jar.html)
 * [Saturday Night's Alright](https://experimentsin.github.io/saturday-night.html)
+* [The Trooper](https://experimentsin.github.io/the-trooper.html)
 
 
 # Tuesday Sessions

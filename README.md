@@ -1,11 +1,14 @@
 # November Gig
 
 * [Sunshine Of Your Love](https://experimentsin.github.io/sunshine-of-your-love.html)
-* [Gimme All Your Lovin'](https://experimentsin.github.io/gimme-all-your-lovin.html)
 * [Whiskey In The Jar](https://experimentsin.github.io/whiskey-in-the-jar.html)
+* Use Somebody
+* [Harvest Moon](https://experimentsin.github.io/harvest-moon.html)
+* The Pirates and the Poets
+* [While My Guitar Gently Weeps](https://experimentsin.github.io/while-my-guitar.html)
 * [Saturday Night's Alright](https://experimentsin.github.io/saturday-night.html)
+* [Gimme All Your Lovin'](https://experimentsin.github.io/gimme-all-your-lovin.html)
 * [The Trooper](https://experimentsin.github.io/the-trooper.html)
-
 
 # Tuesday Sessions
 

@@ -1,8 +1,8 @@
 # November Gig
 
 * [Sunshine Of Your Love](https://experimentsin.github.io/sunshine-of-your-love.html)
-* [Whiskey In The Jar](https://experimentsin.github.io/whiskey-in-the-jar.html)
 * Use Somebody
+* [Whiskey In The Jar](https://experimentsin.github.io/whiskey-in-the-jar.html)
 * [Harvest Moon](https://experimentsin.github.io/harvest-moon.html)
 * The Pirates and the Poets
 * [While My Guitar Gently Weeps](https://experimentsin.github.io/while-my-guitar.html)
